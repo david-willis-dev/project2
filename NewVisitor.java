@@ -1,20 +1,20 @@
 import static java.io.IO.*;
 import java.util.*;
 
-public class NewVisitor extends pascalBaseVisitor<String> {
+public class NewVisitor extends delphiBaseVisitor<String> {
     private Map<String, Integer> varTracker = new HashMap<>();
     private boolean isPublic = true;
     private String currentClass = "";
 
     @Override
-    public String visitProgram(pascalParser.ProgramContext ctx) {
+    public String visitProgram(delphiParser.ProgramContext ctx) {
         //println("Visited Program:\n" + ctx.getText() + "\n");
         return this.visitBlock(ctx.block());
     }
 //PROGRAMHelloWorld;BEGINWRITELN('Hello, World!');END.<EOF>
 
     @Override
-    public String visitBlock(pascalParser.BlockContext ctx) {
+    public String visitBlock(delphiParser.BlockContext ctx) {
         //println("Visited Block:\n" + ctx.getText() + "\n");
         String str = "";
         for(int i = 0; i < ctx.typeDefinitionPart().size(); i++) {
@@ -31,7 +31,7 @@ public class NewVisitor extends pascalBaseVisitor<String> {
     }
 
     @Override
-    public String visitVariableDeclarationPart(pascalParser.VariableDeclarationPartContext ctx) {
+    public String visitVariableDeclarationPart(delphiParser.VariableDeclarationPartContext ctx) {
         println("Visited VariableDeclarationPart:\n" + ctx.getText() + "\n");
         String str = "";
         for (int i = 0; i < ctx.variableDeclaration().size(); i++) {
@@ -41,7 +41,7 @@ public class NewVisitor extends pascalBaseVisitor<String> {
     }
 
     @Override
-    public String visitVariableDeclaration(pascalParser.VariableDeclarationContext ctx) {
+    public String visitVariableDeclaration(delphiParser.VariableDeclarationContext ctx) {
         print("Visited VariableDeclaration: ");
         String str = ctx.identifierList().identifier(0).getText();
         println(str);
@@ -52,7 +52,7 @@ public class NewVisitor extends pascalBaseVisitor<String> {
 
 
     @Override
-    public String visitClassDefinitionPart(pascalParser.ClassDefinitionPartContext ctx) {
+    public String visitClassDefinitionPart(delphiParser.ClassDefinitionPartContext ctx) {
         //println("Visited ClassDefinitionPart:\n" + ctx.getText() + "\n");
         String str = "";
         if (ctx.privateOrPublic(0) != null) {
@@ -71,7 +71,7 @@ public class NewVisitor extends pascalBaseVisitor<String> {
 //    typeExampleClass=classprivatekey:integer;end;
 //BEGINWRITELN('Hello, World!');END
     @Override
-    public String visitTypeDefinitionPart(pascalParser.TypeDefinitionPartContext ctx) {
+    public String visitTypeDefinitionPart(delphiParser.TypeDefinitionPartContext ctx) {
         //println("Visited TypeDefinitionPart:\n" + ctx.getText() + "\n");
         String str = "";
         for(int i = 0; i < ctx.typeDefinition().size(); i++) {
@@ -83,7 +83,7 @@ public class NewVisitor extends pascalBaseVisitor<String> {
     }
 
     @Override
-    public String visitClassVariableDefinition(pascalParser.ClassVariableDefinitionContext ctx) {
+    public String visitClassVariableDefinition(delphiParser.ClassVariableDefinitionContext ctx) {
         //println("Visited ClassVariableDefinition:\n" + ctx.getText() + "\n");
         String str = "";
         String identifier = ctx.identifier(0).getText();
@@ -98,14 +98,14 @@ public class NewVisitor extends pascalBaseVisitor<String> {
     }
 
     @Override
-    public String visitCompoundStatement(pascalParser.CompoundStatementContext ctx) {
+    public String visitCompoundStatement(delphiParser.CompoundStatementContext ctx) {
         //println("Visited CompoundStatement:\n" + ctx.getText() + "\n");
         return this.visitStatements(ctx.statements());
     }
     //BEGINWRITELN('Hello, World!');END
 
     @Override
-    public String visitStatements(pascalParser.StatementsContext ctx) {
+    public String visitStatements(delphiParser.StatementsContext ctx) {
         //println("Visited Statements:\n" + ctx.getText() + "\n");
         String returnStr = "";
         for (int i = 0; i < ctx.statement().size(); i++) {
@@ -119,13 +119,13 @@ public class NewVisitor extends pascalBaseVisitor<String> {
     //WRITELN('Hello, World!');
 
     @Override
-    public String visitStatement(pascalParser.StatementContext ctx) {
+    public String visitStatement(delphiParser.StatementContext ctx) {
         //println("Visited Statement:\n" + ctx.getText() + "\n");
         return this.visitUnlabelledStatement(ctx.unlabelledStatement());
     }
 
     //WRITELN('Hello, World!')
-    public String visitUnlabelledStatement(pascalParser.UnlabelledStatementContext ctx) {
+    public String visitUnlabelledStatement(delphiParser.UnlabelledStatementContext ctx) {
         //println("Visited UnlabelledStatement:\n" + ctx.getText() + "\n");
         if (ctx.simpleStatement() != null) {
             return this.visitSimpleStatement(ctx.simpleStatement());
@@ -135,9 +135,9 @@ public class NewVisitor extends pascalBaseVisitor<String> {
 
     //WRITELN('Hello, World!')
     @Override
-    public String visitSimpleStatement(pascalParser.SimpleStatementContext ctx) {
+    public String visitSimpleStatement(delphiParser.SimpleStatementContext ctx) {
         //println("Visited SimpleStatement: \n" + ctx.getText() + "\n");
-        if (ctx.assignmentStatement() instanceof pascalParser.AssignmentStatementContext) {
+        if (ctx.assignmentStatement() instanceof delphiParser.AssignmentStatementContext) {
             return this.visitAssignmentStatement(ctx.assignmentStatement());
         }
         if (ctx.procedureStatement() != null) {
@@ -158,7 +158,7 @@ public class NewVisitor extends pascalBaseVisitor<String> {
 
 
     @Override
-    public String visitProcedureStatement(pascalParser.ProcedureStatementContext ctx) {
+    public String visitProcedureStatement(delphiParser.ProcedureStatementContext ctx) {
         //println("Visited ProcedureStatement:\n" + ctx.getText() + "\n");
         String command = ctx.identifier().getText().toLowerCase();
         String parameter = ctx.parameterList().getText().replaceAll("^['\"]|['\"]$", "");
@@ -187,7 +187,7 @@ public class NewVisitor extends pascalBaseVisitor<String> {
 
     //WRITELN('Hello, World!')
     @Override
-    public String visitParameterList(pascalParser.ParameterListContext ctx) {
+    public String visitParameterList(delphiParser.ParameterListContext ctx) {
         //println("Visited ParameterList:\n" + ctx.getText() + "\n");
         String str = "";
         for (int i = 0; i < ctx.actualParameter().size(); i++) {
@@ -202,41 +202,41 @@ public class NewVisitor extends pascalBaseVisitor<String> {
     //'Hello, World!'
     //No need to worry about parameterwidth
     @Override
-    public String visitActualParameter(pascalParser.ActualParameterContext ctx) {
+    public String visitActualParameter(delphiParser.ActualParameterContext ctx) {
         //println("Visited ActualParameter:\n" + ctx.getText() + "\n");
         return this.visitExpression(ctx.expression());
     }
 
     //'Hello, World!'
-    public String visitExpression(pascalParser.ExpressionContext ctx) {
+    public String visitExpression(delphiParser.ExpressionContext ctx) {
         //println("Visited Expression:\n" + ctx.getText() + "\n");
         return this.visitSimpleExpression(ctx.simpleExpression());
     }
 
     //'Hello, World!'
     @Override
-    public String visitSimpleExpression(pascalParser.SimpleExpressionContext ctx) {
+    public String visitSimpleExpression(delphiParser.SimpleExpressionContext ctx) {
         //println("Visited SimpleExpression: " + ctx.getText() + "\n");
         return this.visitTerm(ctx.term());
     }
 
     //Visited SimpleExpression: 'Hello, World!'
     @Override
-    public String visitTerm(pascalParser.TermContext ctx) {
+    public String visitTerm(delphiParser.TermContext ctx) {
         //println("Visited Term:" + ctx.getText() + "\n");
         return this.visitSignedFactor(ctx.signedFactor());
     }
 
     //Visited Term:'Hello, World!'
     @Override
-    public String visitSignedFactor(pascalParser.SignedFactorContext ctx) {
+    public String visitSignedFactor(delphiParser.SignedFactorContext ctx) {
         //println("Visited SignedFactor:" + ctx.getText() + "\n");
         return this.visitFactor(ctx.factor());
     }
 
     //Visited SignedFactor:'Hello, World!'
     @Override
-    public String visitFactor(pascalParser.FactorContext ctx) {
+    public String visitFactor(delphiParser.FactorContext ctx) {
         //println("Visited Factor:" + ctx.getText() + "\n");
         //TODO Implement variable, expression, functionDesignator, unsignedConstant, set_, NOT factor, and bool_
         if (ctx.unsignedConstant() != null)
@@ -254,47 +254,47 @@ public class NewVisitor extends pascalBaseVisitor<String> {
         return ctx.getText() + "POSSIBLE ERROR IN visitFactor\n";
     }
 
-    public String visitVariable(pascalParser.VariableContext ctx) {
+    public String visitVariable(delphiParser.VariableContext ctx) {
         //println("Visited Variable:" + ctx.getText() + "\n");
         return ctx.getText();
     }
 
     //    Visited Factor:'Hello, World!'
     @Override
-    public String visitUnsignedConstant(pascalParser.UnsignedConstantContext ctx) {
+    public String visitUnsignedConstant(delphiParser.UnsignedConstantContext ctx) {
         //println("Visited UnsignedConstant:" + ctx.getText() + "\n");
         return this.visitString(ctx.string());
     }
 
     //Visited UnsignedConstant:'Hello, World!'
     @Override
-    public String visitString(pascalParser.StringContext ctx) {
+    public String visitString(delphiParser.StringContext ctx) {
         //println("Visited String:" + ctx.getText() + "\n");
         return ctx.getText();
     }
 
 
     @Override
-    public String visitStructuredStatement(pascalParser.StructuredStatementContext ctx) {
+    public String visitStructuredStatement(delphiParser.StructuredStatementContext ctx) {
         println("Visited Structured Statement: " + ctx.getText());
         return this.visitRepetetiveStatement(ctx.repetetiveStatement());
     }
 
     @Override
-    public String visitRepetetiveStatement(pascalParser.RepetetiveStatementContext ctx) {
+    public String visitRepetetiveStatement(delphiParser.RepetetiveStatementContext ctx) {
         println("Visited RepetetiveStatement: " + ctx.getText());
         return this.visitForStatement(ctx.forStatement());
     }
 
     @Override
-    public String visitForStatement(pascalParser.ForStatementContext ctx) {
+    public String visitForStatement(delphiParser.ForStatementContext ctx) {
 //        Implement Tomorrow
         return "";
     }
 
 
     @Override
-    public String visitAssignmentStatement(pascalParser.AssignmentStatementContext ctx) {
+    public String visitAssignmentStatement(delphiParser.AssignmentStatementContext ctx) {
         //println("Visited AssignmentStatement:\n" + ctx.getText() + "\n");
         String identifier = ctx.variable().getText();
         String classLessIdentifier = identifier.substring(identifier.lastIndexOf('.') + 1);
@@ -316,17 +316,17 @@ public class NewVisitor extends pascalBaseVisitor<String> {
     }
 
     @Override
-    public String visitClassFuncStatement(pascalParser.ClassFuncStatementContext ctx) { //TODO: implement
+    public String visitClassFuncStatement(delphiParser.ClassFuncStatementContext ctx) { //TODO: implement
         return ctx.getText();
     }
 
     @Override
-    public String visitGotoStatement(pascalParser.GotoStatementContext ctx) { //TODO: implement got
+    public String visitGotoStatement(delphiParser.GotoStatementContext ctx) { //TODO: implement got
         return ctx.getText();
     }
 
     @Override
-    public String visitEmptyStatement_(pascalParser.EmptyStatement_Context ctx) { //TODO: implement
+    public String visitEmptyStatement_(delphiParser.EmptyStatement_Context ctx) { //TODO: implement
         return ctx.getText();
     }
 }
