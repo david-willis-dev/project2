@@ -162,14 +162,27 @@ public class NewVisitor extends delphiBaseVisitor<String> {
         //println("Visited ProcedureStatement:\n" + ctx.getText() + "\n");
         String command = ctx.identifier().getText().toLowerCase();
         String parameter = ctx.parameterList().getText().replaceAll("^['\"]|['\"]$", "");
-        String str = this.visitParameterList(ctx.parameterList());
+        String strToWrite = "";
         if (command.contains("write")) {
-            String writeStr;
-            if (varTracker.containsKey(parameter)) {
-                writeStr = varTracker.get(parameter).toString();
-            } else {
-                writeStr = parameter;
+
+            // Replace variable name with values
+            for (Iterator<delphiParser.ActualParameterContext> p = ctx.parameterList().actualParameter().iterator(); p.hasNext();) {
+                delphiParser.ActualParameterContext param = p.next();
+                String strToPrint = param.getText();
+
+                if (varTracker.containsKey(strToPrint)) {
+                    strToWrite += varTracker.get(strToPrint);
+                } else {
+                    strToWrite += strToPrint.replaceAll("^['\"]|['\"]$", "");
+                }
             }
+
+            String writeStr = strToWrite.replaceAll("^['\"]|['\"]$", "");
+//            if (varTracker.containsKey(parameter)) {
+//                writeStr = varTracker.get(parameter).toString();
+//            } else {
+//                writeStr = parameter;
+//            }
             if (command.contains("ln")) {
                 println(writeStr);
             } else {
@@ -182,7 +195,7 @@ public class NewVisitor extends delphiBaseVisitor<String> {
                 varTracker.put(parameter, scanner.nextInt());
             }
         }
-        return str;
+        return strToWrite;
     }
 
     //WRITELN('Hello, World!')
@@ -282,13 +295,25 @@ public class NewVisitor extends delphiBaseVisitor<String> {
 
     @Override
     public String visitRepetetiveStatement(delphiParser.RepetetiveStatementContext ctx) {
-        println("Visited RepetetiveStatement: " + ctx.getText());
+//        println("Visited RepetetiveStatement: " + ctx.getText());
         return this.visitForStatement(ctx.forStatement());
     }
 
     @Override
     public String visitForStatement(delphiParser.ForStatementContext ctx) {
 //        Implement Tomorrow
+//        println("Visited ForStatement: " + ctx.getText());
+
+        String varname = ctx.identifier().getText();
+        String forList = ctx.forList().getText();
+        int startVal = Integer.parseInt(forList.substring(0, forList.indexOf("to")));
+        int endVal = Integer.parseInt(forList.substring(forList.indexOf("to") + 2, forList.length()));
+
+        for (int i = startVal; i <= endVal; i++) {
+            varTracker.put(varname, i);
+            this.visitStatement(ctx.statement());
+        }
+
         return "";
     }
 
