@@ -1,22 +1,22 @@
 program functionTest;
 
-function double(num1: integer): integer;
+function addInts(num1, num2: integer): integer;
 
 var
    result: integer;
 
 begin
 
-   result := num1 + num1;
-   max := result;
+   result := num1 + num2;
+   addInts := result;
 end;
 
 var
   num1, num2, result: integer;
 begin
-  num1 := 3;
-  num2 := 5;
-  result := double(num1);
+  num1 := 1;
+  num2 := 4;
+  result := addInts(num1, num2);
 
-  writeln(num1, ' doubled is', result);
+  writeln(num1, ' plus ', num2, ' is ', result);
 end.

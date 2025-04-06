@@ -3,11 +3,22 @@ import java.beans.Expression;
 import java.util.*;
 
 public class NewVisitor extends delphiBaseVisitor<String> {
+    // Basic Vars
     private Map<String, Integer> varTracker = new HashMap<>();
-    private boolean breakLoop = false;
     private boolean continueLoop = false;
-    private boolean isPublic = true;
+    private boolean breakLoop = false;
+
+    // Func Vars
+    private Map<String, delphiParser.FormalParameterListContext> funcPars = new HashMap<>();
+    private Map<String, delphiParser.BlockContext> funcBlock = new HashMap<>();
+    private Map<String, String> funcRet = new HashMap<>();
+
+    // Scope Vars
+    private Stack<Map<String, Integer>> scopeStack = new Stack<>();
+
+    // Class Vars
     private String currentClass = "";
+    private boolean isPublic = true;
 
     @Override
     public String visitProgram(delphiParser.ProgramContext ctx) {
@@ -30,7 +41,6 @@ public class NewVisitor extends delphiBaseVisitor<String> {
             str += this.visitVariableDeclarationPart(ctx.variableDeclarationPart().get(i));
         }
         for(int i = 0; i < ctx.procedureAndFunctionDeclarationPart().size(); i++) {
-            println("FUNC: " + ctx.procedureAndFunctionDeclarationPart().get(i).getText());
             str += this.visitProcedureAndFunctionDeclarationPart(ctx.procedureAndFunctionDeclarationPart().get(i));
         }
 
@@ -113,11 +123,11 @@ public class NewVisitor extends delphiBaseVisitor<String> {
 
     @Override
     public String visitStatements(delphiParser.StatementsContext ctx) {
-        //println("Visited Statements:\n" + ctx.getText() + "\n");
+//        println("Visited Statements:\n" + ctx.getText() + "\n");
         String returnStr = "";
         for (int i = 0; i < ctx.statement().size(); i++) {
             if (ctx.statement() != null) {
-//                println("Visited Statement #" + i + "\n");
+//                println("Visited Statement #" + i + ": " + ctx.statement().get(i).getText());
                 returnStr += this.visitStatement(ctx.statement().get(i));
                 if (continueLoop) {
                     continueLoop = false;
@@ -397,6 +407,11 @@ public class NewVisitor extends delphiBaseVisitor<String> {
             } else if (ctx.expression().getText().contains("+") || ctx.expression().getText().contains("-")) {
                 int varVal = Integer.parseInt(this.visitExpression(ctx.expression()));
                 varTracker.put(identifier, varVal);
+            } else if (ctx.expression().getText().contains("(") || ctx.expression().getText().contains(")")) {
+                varTracker.put(identifier, Integer.parseInt(this.visitExpression(ctx.expression())));
+            } else if (varTracker.containsKey(ctx.expression().getText())) {
+                varTracker.put(identifier, varTracker.get(ctx.expression().getText()));
+
             }
 
 
@@ -424,10 +439,52 @@ public class NewVisitor extends delphiBaseVisitor<String> {
 
     @Override
     public String visitFunctionDeclaration(delphiParser.FunctionDeclarationContext ctx) {
-        println("HI " + ctx.getText());
-        println("HI " + ctx.children);
-//        println("HI " + ctx.getText(/));
-        return "";
+        String funcName = ctx.identifier().getFirst().getText();
+        String returnType = ctx.typeIdentifier().getText();
+        delphiParser.BlockContext block = ctx.block();
+        delphiParser.FormalParameterListContext formalParameterList = ctx.formalParameterList();
+
+        this.funcRet.put(funcName, returnType);
+        this.funcBlock.put(funcName, block);
+        this.funcPars.put(funcName, formalParameterList);
+
+        return ctx.getText();
+    }
+
+    @Override
+    public  String visitFunctionDesignator(delphiParser.FunctionDesignatorContext ctx) {
+        String funcName = ctx.identifier().getText();
+        enterFunc(funcName, ctx.parameterList());
+        this.visitBlock(this.funcBlock.get(funcName));
+        String funcVal = String.valueOf(varTracker.get(funcName));
+        this.varTracker = this.scopeStack.pop();
+        return funcVal;
+    }
+
+
+    void enterFunc(String funcName, delphiParser.ParameterListContext ctx) {
+        delphiParser.FormalParameterListContext paramList = this.funcPars.get(funcName);
+        List<Integer> arguments = new ArrayList<>();
+        List<delphiParser.ActualParameterContext> actualParams = ctx.actualParameter();
+
+        for (delphiParser.ActualParameterContext actualParameterContext : ctx.actualParameter()) {
+            int varVal = getVarOrVal(actualParameterContext.expression().simpleExpression().term());
+            arguments.add(varVal);
+        }
+
+        this.scopeStack.add(this.varTracker);
+        this.varTracker = new HashMap<>();
+        this.varTracker.put(funcName, Integer.MIN_VALUE);
+
+        int i = 0;
+        for (delphiParser.FormalParameterSectionContext paramSec: paramList.formalParameterSection()) {
+            for (delphiParser.IdentifierContext paramName: paramSec.parameterGroup().identifierList().identifier()) {
+                varTracker.put(paramName.getText(), arguments.get(i));
+                i += 1;
+            }
+        }
+
+
     }
 
 

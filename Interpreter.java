@@ -10,9 +10,9 @@ public class Interpreter {
 //        runTest("./test_files/classTest.pas");
 //        runTest("./test_files/encapsulationTest.pas");
 //        runTest("./test_files/forLoop.pas");
-        runTest("./test_files/hardForLoop.pas");
-        runTest("./test_files/whileLoop.pas");
-//        runTest("./test_files/functionTest.pas");
+//        runTest("./test_files/hardForLoop.pas");
+//        runTest("./test_files/whileLoop.pas");
+        runTest("./test_files/functionTest.pas");
     }
 
     public static void runTest(String filePath) throws IOException {
