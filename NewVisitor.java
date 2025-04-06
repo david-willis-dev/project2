@@ -1,5 +1,4 @@
 import static java.io.IO.*;
-
 import java.beans.Expression;
 import java.util.*;
 
@@ -12,14 +11,14 @@ public class NewVisitor extends delphiBaseVisitor<String> {
 
     @Override
     public String visitProgram(delphiParser.ProgramContext ctx) {
-        //println("Visited Program:\n" + ctx.getText() + "\n");
+//        println("Visited Program:\n" + ctx.getText() + "\n");
         return this.visitBlock(ctx.block());
     }
 //PROGRAMHelloWorld;BEGINWRITELN('Hello, World!');END.<EOF>
 
     @Override
     public String visitBlock(delphiParser.BlockContext ctx) {
-        //println("Visited Block:\n" + ctx.getText() + "\n");
+//        println("Visited Block:\n" + ctx.getText() + "\n");
         String str = "";
         for(int i = 0; i < ctx.typeDefinitionPart().size(); i++) {
             str += this.visitTypeDefinitionPart(ctx.typeDefinitionPart().get(i));
@@ -30,6 +29,11 @@ public class NewVisitor extends delphiBaseVisitor<String> {
         for(int i = 0; i < ctx.variableDeclarationPart().size(); i++) {
             str += this.visitVariableDeclarationPart(ctx.variableDeclarationPart().get(i));
         }
+        for(int i = 0; i < ctx.procedureAndFunctionDeclarationPart().size(); i++) {
+            println("FUNC: " + ctx.procedureAndFunctionDeclarationPart().get(i).getText());
+            str += this.visitProcedureAndFunctionDeclarationPart(ctx.procedureAndFunctionDeclarationPart().get(i));
+        }
+
         str += this.visitCompoundStatement(ctx.compoundStatement());
         return str;
     }
@@ -102,7 +106,7 @@ public class NewVisitor extends delphiBaseVisitor<String> {
 
     @Override
     public String visitCompoundStatement(delphiParser.CompoundStatementContext ctx) {
-        //println("Visited CompoundStatement:\n" + ctx.getText() + "\n");
+//        println("Visited CompoundStatement:\n" + ctx.getText() + "\n");
         return this.visitStatements(ctx.statements());
     }
     //BEGINWRITELN('Hello, World!');END
@@ -276,7 +280,7 @@ public class NewVisitor extends delphiBaseVisitor<String> {
     //Visited SignedFactor:'Hello, World!'
     @Override
     public String visitFactor(delphiParser.FactorContext ctx) {
-        println("Visited Factor:" + ctx.getText() + "\n");
+//        println("Visited Factor:" + ctx.getText() + "\n");
         //TODO Implement variable, expression, functionDesignator, unsignedConstant, set_, NOT factor, and bool_
         if (ctx.unsignedConstant() != null)
             return this.visitUnsignedConstant(ctx.unsignedConstant());
@@ -382,9 +386,6 @@ public class NewVisitor extends delphiBaseVisitor<String> {
         //println("Visited AssignmentStatement:\n" + ctx.getText() + "\n");
         String identifier = ctx.variable().getText();
         String classLessIdentifier = identifier.substring(identifier.lastIndexOf('.') + 1);
-        if (identifier.equals("x")) {
-            println(identifier);
-        }
 
         //println("\tIdentifier = " + identifier + "\n\tValue = " + value + "\n\tClassLessIdentifier = " + classLessIdentifier);
         try {
@@ -420,6 +421,15 @@ public class NewVisitor extends delphiBaseVisitor<String> {
     public String visitEmptyStatement_(delphiParser.EmptyStatement_Context ctx) { //TODO: implement
         return ctx.getText();
     }
+
+    @Override
+    public String visitFunctionDeclaration(delphiParser.FunctionDeclarationContext ctx) {
+        println("HI " + ctx.getText());
+        println("HI " + ctx.children);
+//        println("HI " + ctx.getText(/));
+        return "";
+    }
+
 
     String preformMath(delphiParser.SimpleExpressionContext ctx) {
 
