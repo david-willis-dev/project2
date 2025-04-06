@@ -3,6 +3,8 @@ import java.util.*;
 
 public class NewVisitor extends delphiBaseVisitor<String> {
     private Map<String, Integer> varTracker = new HashMap<>();
+    private boolean breakLoop = false;
+    private boolean continueLoop = false;
     private boolean isPublic = true;
     private String currentClass = "";
 
@@ -112,6 +114,10 @@ public class NewVisitor extends delphiBaseVisitor<String> {
             if (ctx.statement() != null) {
                 //println("Visited Statement #" + i + "\n");
                 returnStr += this.visitStatement(ctx.statement().get(i));
+                if (continueLoop) {
+                    continueLoop = false;
+                    break;
+                }
             }
         }
         return returnStr;
@@ -120,6 +126,7 @@ public class NewVisitor extends delphiBaseVisitor<String> {
 
     @Override
     public String visitStatement(delphiParser.StatementContext ctx) {
+        String text = ctx.getText();
         //println("Visited Statement:\n" + ctx.getText() + "\n");
         return this.visitUnlabelledStatement(ctx.unlabelledStatement());
     }
@@ -129,8 +136,11 @@ public class NewVisitor extends delphiBaseVisitor<String> {
         //println("Visited UnlabelledStatement:\n" + ctx.getText() + "\n");
         if (ctx.simpleStatement() != null) {
             return this.visitSimpleStatement(ctx.simpleStatement());
+        } if (ctx.getText().contains("begin") && ctx.getText().contains("end")) {
+            return this.visitStructuredStatement(ctx.structuredStatement());
+        } else {
+            return this.visitStructuredStatement(ctx.structuredStatement());
         }
-        return this.visitStructuredStatement(ctx.structuredStatement());
     }
 
     //WRITELN('Hello, World!')
@@ -161,7 +171,10 @@ public class NewVisitor extends delphiBaseVisitor<String> {
     public String visitProcedureStatement(delphiParser.ProcedureStatementContext ctx) {
         //println("Visited ProcedureStatement:\n" + ctx.getText() + "\n");
         String command = ctx.identifier().getText().toLowerCase();
-        String parameter = ctx.parameterList().getText().replaceAll("^['\"]|['\"]$", "");
+        String parameter = "";
+        if (ctx.parameterList() != null) {
+            parameter = ctx.parameterList().getText().replaceAll("^['\"]|['\"]$", "");
+        }
         String strToWrite = "";
         if (command.contains("write")) {
 
@@ -194,6 +207,14 @@ public class NewVisitor extends delphiBaseVisitor<String> {
             if (scanner.hasNextInt()) {
                 varTracker.put(parameter, scanner.nextInt());
             }
+        }
+        if (command.equalsIgnoreCase("break")) {
+            breakLoop = true;
+            return "";
+        }
+        if (command.equalsIgnoreCase("continue")) {
+            continueLoop = true;
+            return "";
         }
         return strToWrite;
     }
@@ -289,8 +310,14 @@ public class NewVisitor extends delphiBaseVisitor<String> {
 
     @Override
     public String visitStructuredStatement(delphiParser.StructuredStatementContext ctx) {
-        println("Visited Structured Statement: " + ctx.getText());
-        return this.visitRepetetiveStatement(ctx.repetetiveStatement());
+//        println("Visited Structured Statement: " + ctx.getText());
+
+        if (ctx.repetetiveStatement() != null) {
+            return this.visitRepetetiveStatement(ctx.repetetiveStatement());
+        } else if (ctx.compoundStatement() != null) {
+            return this.visitCompoundStatement(ctx.compoundStatement());
+        }
+        return ctx.getText();
     }
 
     @Override
@@ -301,17 +328,19 @@ public class NewVisitor extends delphiBaseVisitor<String> {
 
     @Override
     public String visitForStatement(delphiParser.ForStatementContext ctx) {
-//        Implement Tomorrow
-//        println("Visited ForStatement: " + ctx.getText());
-
         String varname = ctx.identifier().getText();
         String forList = ctx.forList().getText();
         int startVal = Integer.parseInt(forList.substring(0, forList.indexOf("to")));
         int endVal = Integer.parseInt(forList.substring(forList.indexOf("to") + 2, forList.length()));
+//        println("FOR SATEMENT: " + ctx.DO().getText());
 
         for (int i = startVal; i <= endVal; i++) {
             varTracker.put(varname, i);
             this.visitStatement(ctx.statement());
+            if (breakLoop) {
+                breakLoop = false;
+                break;
+            }
         }
 
         return "";
