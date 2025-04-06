@@ -11,8 +11,7 @@ public class Interpreter {
         runTest("./encapsulationTest.pas");
         runTest("./forLoop.pas");
         runTest("./hardForLoop.pas");
-
-
+        runTest("./whileLoop.pas");
     }
 
     public static void runTest(String filePath) throws IOException {
