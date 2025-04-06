@@ -325,7 +325,7 @@ constList
     ;
 
 functionDeclaration
-    : PROCEDURE identifier (DOT identifier)* formalParameterList SEMI block
+    : FUNCTION identifier (DOT identifier)* formalParameterList (COLON typeIdentifier)? SEMI block
     ;
 
 resultType
