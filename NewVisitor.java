@@ -1,21 +1,35 @@
 import static java.io.IO.*;
+import java.beans.Expression;
 import java.util.*;
 
 public class NewVisitor extends delphiBaseVisitor<String> {
+    // Basic Vars
     private Map<String, Integer> varTracker = new HashMap<>();
-    private boolean isPublic = true;
+    private boolean continueLoop = false;
+    private boolean breakLoop = false;
+
+    // Func Vars
+    private Map<String, delphiParser.FormalParameterListContext> funcPars = new HashMap<>();
+    private Map<String, delphiParser.BlockContext> funcBlock = new HashMap<>();
+    private Map<String, String> funcRet = new HashMap<>();
+
+    // Scope Vars
+    private Stack<Map<String, Integer>> scopeStack = new Stack<>();
+
+    // Class Vars
     private String currentClass = "";
+    private boolean isPublic = true;
 
     @Override
     public String visitProgram(delphiParser.ProgramContext ctx) {
-        //println("Visited Program:\n" + ctx.getText() + "\n");
+//        println("Visited Program:\n" + ctx.getText() + "\n");
         return this.visitBlock(ctx.block());
     }
 //PROGRAMHelloWorld;BEGINWRITELN('Hello, World!');END.<EOF>
 
     @Override
     public String visitBlock(delphiParser.BlockContext ctx) {
-        //println("Visited Block:\n" + ctx.getText() + "\n");
+//        println("Visited Block:\n" + ctx.getText() + "\n");
         String str = "";
         for(int i = 0; i < ctx.typeDefinitionPart().size(); i++) {
             str += this.visitTypeDefinitionPart(ctx.typeDefinitionPart().get(i));
@@ -26,13 +40,17 @@ public class NewVisitor extends delphiBaseVisitor<String> {
         for(int i = 0; i < ctx.variableDeclarationPart().size(); i++) {
             str += this.visitVariableDeclarationPart(ctx.variableDeclarationPart().get(i));
         }
+        for(int i = 0; i < ctx.procedureAndFunctionDeclarationPart().size(); i++) {
+            str += this.visitProcedureAndFunctionDeclarationPart(ctx.procedureAndFunctionDeclarationPart().get(i));
+        }
+
         str += this.visitCompoundStatement(ctx.compoundStatement());
         return str;
     }
 
     @Override
     public String visitVariableDeclarationPart(delphiParser.VariableDeclarationPartContext ctx) {
-        println("Visited VariableDeclarationPart:\n" + ctx.getText() + "\n");
+//        println("Visited VariableDeclarationPart:\n" + ctx.getText() + "\n");
         String str = "";
         for (int i = 0; i < ctx.variableDeclaration().size(); i++) {
             str += this.visitVariableDeclaration(ctx.variableDeclaration().get(i));
@@ -42,12 +60,11 @@ public class NewVisitor extends delphiBaseVisitor<String> {
 
     @Override
     public String visitVariableDeclaration(delphiParser.VariableDeclarationContext ctx) {
-        print("Visited VariableDeclaration: ");
-        String str = ctx.identifierList().identifier(0).getText();
-        println(str);
+//        print("Visited VariableDeclaration: ");
+        String varName = ctx.identifierList().identifier(0).getText();
         //Note, if a non-variable integer is initialized using visitVariableDeclaration, that will have to be implemented here, for now it only works with ints.
-        varTracker.put(str, Integer.MIN_VALUE); //Default initialization
-        return str;
+        varTracker.put(varName, Integer.MIN_VALUE); //Default initialization
+        return varName;
     }
 
 
@@ -99,19 +116,23 @@ public class NewVisitor extends delphiBaseVisitor<String> {
 
     @Override
     public String visitCompoundStatement(delphiParser.CompoundStatementContext ctx) {
-        //println("Visited CompoundStatement:\n" + ctx.getText() + "\n");
+//        println("Visited CompoundStatement:\n" + ctx.getText() + "\n");
         return this.visitStatements(ctx.statements());
     }
     //BEGINWRITELN('Hello, World!');END
 
     @Override
     public String visitStatements(delphiParser.StatementsContext ctx) {
-        //println("Visited Statements:\n" + ctx.getText() + "\n");
+//        println("Visited Statements:\n" + ctx.getText() + "\n");
         String returnStr = "";
         for (int i = 0; i < ctx.statement().size(); i++) {
             if (ctx.statement() != null) {
-                //println("Visited Statement #" + i + "\n");
+//                println("Visited Statement #" + i + ": " + ctx.statement().get(i).getText());
                 returnStr += this.visitStatement(ctx.statement().get(i));
+                if (continueLoop) {
+                    continueLoop = false;
+                    break;
+                }
             }
         }
         return returnStr;
@@ -120,7 +141,8 @@ public class NewVisitor extends delphiBaseVisitor<String> {
 
     @Override
     public String visitStatement(delphiParser.StatementContext ctx) {
-        //println("Visited Statement:\n" + ctx.getText() + "\n");
+        String text = ctx.getText();
+//        println("Visited Statement:\n" + ctx.getText() + "\n");
         return this.visitUnlabelledStatement(ctx.unlabelledStatement());
     }
 
@@ -129,8 +151,11 @@ public class NewVisitor extends delphiBaseVisitor<String> {
         //println("Visited UnlabelledStatement:\n" + ctx.getText() + "\n");
         if (ctx.simpleStatement() != null) {
             return this.visitSimpleStatement(ctx.simpleStatement());
+        } if (ctx.getText().contains("begin") && ctx.getText().contains("end")) {
+            return this.visitStructuredStatement(ctx.structuredStatement());
+        } else {
+            return this.visitStructuredStatement(ctx.structuredStatement());
         }
-        return this.visitStructuredStatement(ctx.structuredStatement());
     }
 
     //WRITELN('Hello, World!')
@@ -161,7 +186,10 @@ public class NewVisitor extends delphiBaseVisitor<String> {
     public String visitProcedureStatement(delphiParser.ProcedureStatementContext ctx) {
         //println("Visited ProcedureStatement:\n" + ctx.getText() + "\n");
         String command = ctx.identifier().getText().toLowerCase();
-        String parameter = ctx.parameterList().getText().replaceAll("^['\"]|['\"]$", "");
+        String parameter = "";
+        if (ctx.parameterList() != null) {
+            parameter = ctx.parameterList().getText().replaceAll("^['\"]|['\"]$", "");
+        }
         String strToWrite = "";
         if (command.contains("write")) {
 
@@ -194,6 +222,14 @@ public class NewVisitor extends delphiBaseVisitor<String> {
             if (scanner.hasNextInt()) {
                 varTracker.put(parameter, scanner.nextInt());
             }
+        }
+        if (command.equalsIgnoreCase("break")) {
+            breakLoop = true;
+            return "";
+        }
+        if (command.equalsIgnoreCase("continue")) {
+            continueLoop = true;
+            return "";
         }
         return strToWrite;
     }
@@ -230,6 +266,10 @@ public class NewVisitor extends delphiBaseVisitor<String> {
     @Override
     public String visitSimpleExpression(delphiParser.SimpleExpressionContext ctx) {
         //println("Visited SimpleExpression: " + ctx.getText() + "\n");
+        if (ctx.additiveoperator() != null) {
+            return this.preformMath(ctx);
+        }
+
         return this.visitTerm(ctx.term());
     }
 
@@ -250,7 +290,7 @@ public class NewVisitor extends delphiBaseVisitor<String> {
     //Visited SignedFactor:'Hello, World!'
     @Override
     public String visitFactor(delphiParser.FactorContext ctx) {
-        //println("Visited Factor:" + ctx.getText() + "\n");
+//        println("Visited Factor:" + ctx.getText() + "\n");
         //TODO Implement variable, expression, functionDesignator, unsignedConstant, set_, NOT factor, and bool_
         if (ctx.unsignedConstant() != null)
             return this.visitUnsignedConstant(ctx.unsignedConstant());
@@ -289,29 +329,62 @@ public class NewVisitor extends delphiBaseVisitor<String> {
 
     @Override
     public String visitStructuredStatement(delphiParser.StructuredStatementContext ctx) {
-        println("Visited Structured Statement: " + ctx.getText());
-        return this.visitRepetetiveStatement(ctx.repetetiveStatement());
+//        println("Visited Structured Statement: " + ctx.getText());
+
+        if (ctx.repetetiveStatement() != null) {
+            return this.visitRepetetiveStatement(ctx.repetetiveStatement());
+        } else if (ctx.compoundStatement() != null) {
+            return this.visitCompoundStatement(ctx.compoundStatement());
+        }
+
+        return ctx.getText();
     }
 
     @Override
     public String visitRepetetiveStatement(delphiParser.RepetetiveStatementContext ctx) {
 //        println("Visited RepetetiveStatement: " + ctx.getText());
-        return this.visitForStatement(ctx.forStatement());
+        if (ctx.forStatement() != null) {
+            return this.visitForStatement(ctx.forStatement());
+        } else if (ctx.whileStatement() != null) {
+            return this.visitWhileStatement(ctx.whileStatement());
+        }
+
+        return ctx.getText();
     }
 
     @Override
     public String visitForStatement(delphiParser.ForStatementContext ctx) {
-//        Implement Tomorrow
-//        println("Visited ForStatement: " + ctx.getText());
-
         String varname = ctx.identifier().getText();
         String forList = ctx.forList().getText();
         int startVal = Integer.parseInt(forList.substring(0, forList.indexOf("to")));
         int endVal = Integer.parseInt(forList.substring(forList.indexOf("to") + 2, forList.length()));
+//        println("FOR SATEMENT: " + ctx.DO().getText());
 
         for (int i = startVal; i <= endVal; i++) {
             varTracker.put(varname, i);
             this.visitStatement(ctx.statement());
+            if (breakLoop) {
+                breakLoop = false;
+                break;
+            }
+        }
+
+        return "";
+    }
+
+    @Override
+    public String visitWhileStatement(delphiParser.WhileStatementContext ctx) {
+        String varname = ctx.expression().simpleExpression().getText();
+        String endValue = ctx.expression().expression().simpleExpression().getText();
+        String curVal = String.valueOf(varTracker.get(varname));
+
+        while (!Objects.equals(curVal, endValue)) {
+            this.visitStatement(ctx.statement());
+            if (breakLoop) {
+                breakLoop = false;
+                break;
+            }
+            curVal = String.valueOf(varTracker.get(varname));
         }
 
         return "";
@@ -323,15 +396,24 @@ public class NewVisitor extends delphiBaseVisitor<String> {
         //println("Visited AssignmentStatement:\n" + ctx.getText() + "\n");
         String identifier = ctx.variable().getText();
         String classLessIdentifier = identifier.substring(identifier.lastIndexOf('.') + 1);
-        String value = ctx.expression().getText();
+
         //println("\tIdentifier = " + identifier + "\n\tValue = " + value + "\n\tClassLessIdentifier = " + classLessIdentifier);
         try {
             if(varTracker.containsKey(currentClass + "::" + classLessIdentifier) && varTracker.get(currentClass + "::" +  classLessIdentifier) == Integer.MIN_VALUE) {
                 throw new Exception("Tried to visit a private field");
             }
-            if(ctx.expression().getText().matches("-?\\d+")) {
+            if (ctx.expression().getText().matches("-?\\d+")) {
                 varTracker.put(ctx.variable().getText(), Integer.parseInt(ctx.expression().getText()));
+            } else if (ctx.expression().getText().contains("+") || ctx.expression().getText().contains("-")) {
+                int varVal = Integer.parseInt(this.visitExpression(ctx.expression()));
+                varTracker.put(identifier, varVal);
+            } else if (ctx.expression().getText().contains("(") || ctx.expression().getText().contains(")")) {
+                varTracker.put(identifier, Integer.parseInt(this.visitExpression(ctx.expression())));
+            } else if (varTracker.containsKey(ctx.expression().getText())) {
+                varTracker.put(identifier, varTracker.get(ctx.expression().getText()));
+
             }
+
 
             } catch (Exception e) {
             println("Hey! You can't access that variable here. tried to access: " + identifier + " from out of its appropriate context. Encapsulation successfully protected :)");
@@ -353,5 +435,95 @@ public class NewVisitor extends delphiBaseVisitor<String> {
     @Override
     public String visitEmptyStatement_(delphiParser.EmptyStatement_Context ctx) { //TODO: implement
         return ctx.getText();
+    }
+
+    @Override
+    public String visitFunctionDeclaration(delphiParser.FunctionDeclarationContext ctx) {
+        String funcName = ctx.identifier().getFirst().getText();
+        String returnType = ctx.typeIdentifier().getText();
+        delphiParser.BlockContext block = ctx.block();
+        delphiParser.FormalParameterListContext formalParameterList = ctx.formalParameterList();
+
+        this.funcRet.put(funcName, returnType);
+        this.funcBlock.put(funcName, block);
+        this.funcPars.put(funcName, formalParameterList);
+
+        return ctx.getText();
+    }
+
+    @Override
+    public  String visitFunctionDesignator(delphiParser.FunctionDesignatorContext ctx) {
+        String funcName = ctx.identifier().getText();
+        enterFunc(funcName, ctx.parameterList());
+        this.visitBlock(this.funcBlock.get(funcName));
+        String funcVal = String.valueOf(varTracker.get(funcName));
+        this.varTracker = this.scopeStack.pop();
+        return funcVal;
+    }
+
+
+    void enterFunc(String funcName, delphiParser.ParameterListContext ctx) {
+        delphiParser.FormalParameterListContext paramList = this.funcPars.get(funcName);
+        List<Integer> arguments = new ArrayList<>();
+        List<delphiParser.ActualParameterContext> actualParams = ctx.actualParameter();
+
+        for (delphiParser.ActualParameterContext actualParameterContext : ctx.actualParameter()) {
+            int varVal = getVarOrVal(actualParameterContext.expression().simpleExpression().term());
+            arguments.add(varVal);
+        }
+
+        this.scopeStack.add(this.varTracker);
+        this.varTracker = new HashMap<>();
+        this.varTracker.put(funcName, Integer.MIN_VALUE);
+
+        int i = 0;
+        for (delphiParser.FormalParameterSectionContext paramSec: paramList.formalParameterSection()) {
+            for (delphiParser.IdentifierContext paramName: paramSec.parameterGroup().identifierList().identifier()) {
+                varTracker.put(paramName.getText(), arguments.get(i));
+                i += 1;
+            }
+        }
+
+
+    }
+
+
+    String preformMath(delphiParser.SimpleExpressionContext ctx) {
+
+        int firstVal = getVarOrVal(ctx.term());
+
+        delphiParser.SimpleExpressionContext expr = ctx.simpleExpression();
+
+        int secondVal;
+
+        if (expr.additiveoperator() != null) {
+            secondVal = Integer.parseInt(preformMath(expr));
+        } else {
+            secondVal = getVarOrVal(expr.term());
+        }
+
+
+        int val;
+        if (ctx.additiveoperator().getText().equals("+")) {
+            val = firstVal + secondVal;
+        } else {
+            val = firstVal - secondVal;
+        }
+
+        return String.valueOf(val);
+    }
+
+    int getVarOrVal(delphiParser.TermContext ctx) {
+        delphiParser.FactorContext factor = ctx.signedFactor().factor();
+        int val;
+
+        if (factor.variable() != null) {
+            String varName = factor.variable().getText();
+            val = varTracker.get(varName);
+        } else {
+            val = Integer.parseInt(factor.unsignedConstant().getText());
+        }
+
+        return val;
     }
 }
