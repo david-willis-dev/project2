@@ -32,7 +32,7 @@ public class NewVisitor extends delphiBaseVisitor<String> {
 
     @Override
     public String visitVariableDeclarationPart(delphiParser.VariableDeclarationPartContext ctx) {
-        println("Visited VariableDeclarationPart:\n" + ctx.getText() + "\n");
+       //priln("Visited VariableDeclarationPart:\n" + ctx.getText() + "\n");
         String str = "";
         for (int i = 0; i < ctx.variableDeclaration().size(); i++) {
             str += this.visitVariableDeclaration(ctx.variableDeclaration().get(i));
@@ -42,9 +42,9 @@ public class NewVisitor extends delphiBaseVisitor<String> {
 
     @Override
     public String visitVariableDeclaration(delphiParser.VariableDeclarationContext ctx) {
-        print("Visited VariableDeclaration: ");
+       //pri("Visited VariableDeclaration: ");
         String str = ctx.identifierList().identifier(0).getText();
-        println(str);
+        //println(str);
         //Note, if a non-variable integer is initialized using visitVariableDeclaration, that will have to be implemented here, for now it only works with ints.
         varTracker.put(str, Integer.MIN_VALUE); //Default initialization
         return str;
@@ -289,7 +289,7 @@ public class NewVisitor extends delphiBaseVisitor<String> {
 
     @Override
     public String visitStructuredStatement(delphiParser.StructuredStatementContext ctx) {
-        println("Visited Structured Statement: " + ctx.getText());
+       //priln("Visited Structured Statement: " + ctx.getText());
         return this.visitRepetetiveStatement(ctx.repetetiveStatement());
     }
 
