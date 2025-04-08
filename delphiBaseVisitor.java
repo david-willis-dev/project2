@@ -1,4 +1,4 @@
-// Generated from C:/Desktop/Working 1/src-2 (2)/src/delphi.g4 by ANTLR 4.13.2
+// Generated from C:/Users/techn/GitHub/project2/delphi.g4 by ANTLR 4.13.2
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 
 /**
