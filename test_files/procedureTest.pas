@@ -1,6 +1,6 @@
 program SimpleProcedure;
 
-procedure SayHello;
+procedure SayHello();
 begin
   writeln('Hello!');
 end;
