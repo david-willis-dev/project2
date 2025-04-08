@@ -1,6 +1,6 @@
 # PLPproj2
 
-Our project is able to handle basic IO, constructors, destructors, objects, encapsulation, functions, loops, break and continue.
+Our project is able to handle basic IO, constructors, destructors, objects, encapsulation, functions, procedures, for loops, while loops, break and continue.
 
 To run all the test files we created an Interpreter.java file to run through all the pascal files and run them. To compile the code run the following command.
 
