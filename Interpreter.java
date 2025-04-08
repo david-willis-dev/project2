@@ -7,14 +7,14 @@ import static java.io.IO.*;
 
 public class Interpreter {
     public static void main(String[] args) throws IOException {
-//        runTest("./test_files/helloworldtest.pas");
-//        runTest("./test_files/readAndEcho.pas", "./test_files/readAndEcho.in", "./test_files/readAndEcho.out");
-//        runTest("./test_files/classTest.pas", "./test_files/classTest.in", "./test_files/classTest.out");
-//        runTest("./test_files/encapsulationTest.pas");
-//        runTest("./test_files/forLoop.pas");
-//        runTest("./test_files/whileLoop.pas", "./test_files/whileLoop.in", "./test_files/whileLoop.out");
-//        runTest("./test_files/hardForLoop.pas");
-//        runTest("./test_files/functionTest.pas");
+        runTest("./test_files/helloworldtest.pas");
+        runTest("./test_files/readAndEcho.pas", "./test_files/readAndEcho.in", "./test_files/readAndEcho.out");
+        runTest("./test_files/classTest.pas", "./test_files/classTest.in", "./test_files/classTest.out");
+        runTest("./test_files/encapsulationTest.pas");
+        runTest("./test_files/forLoop.pas");
+        runTest("./test_files/whileLoop.pas", "./test_files/whileLoop.in", "./test_files/whileLoop.out");
+        runTest("./test_files/hardForLoop.pas");
+        runTest("./test_files/functionTest.pas");
         manualTest("./test_files/procedureTest.pas");
     }
 
