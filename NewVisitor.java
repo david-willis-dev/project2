@@ -1,5 +1,7 @@
-import static java.io.IO.*;
 import java.beans.Expression;
+import java.io.IOException;
+import static java.io.IO.*;
+import java.io.FileWriter;
 import java.util.*;
 
 public class NewVisitor extends delphiBaseVisitor<String> {
@@ -19,6 +21,19 @@ public class NewVisitor extends delphiBaseVisitor<String> {
     // Class Vars
     private String currentClass = "";
     private boolean isPublic = true;
+    private FileWriter file;
+
+    private void writeToFile(String writeString) {
+        try {
+            file = new FileWriter("llvmInput.bc");
+            file.write(writeString);
+            file.close();
+        } catch (IOException e) {
+            System.out.println("COULDN'T OPEN FILE");
+            e.printStackTrace();
+        }
+    }
+
 
     @Override
     public String visitProgram(delphiParser.ProgramContext ctx) {
@@ -64,6 +79,7 @@ public class NewVisitor extends delphiBaseVisitor<String> {
         String varName = ctx.identifierList().identifier(0).getText();
         //Note, if a non-variable integer is initialized using visitVariableDeclaration, that will have to be implemented here, for now it only works with ints.
         varTracker.put(varName, Integer.MIN_VALUE); //Default initialization
+        writeToFile("@" + varName + " = global i32 0 ; global var\n");
         return varName;
     }
 
@@ -501,7 +517,6 @@ public class NewVisitor extends delphiBaseVisitor<String> {
         } else {
             secondVal = getVarOrVal(expr.term());
         }
-
 
         int val;
         if (ctx.additiveoperator().getText().equals("+")) {
