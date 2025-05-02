@@ -1,8 +1,5 @@
-import java.beans.Expression;
 import java.io.*;
-
 import static java.io.IO.*;
-
 import java.util.*;
 
 public class NewVisitor extends delphiBaseVisitor<String> {
@@ -99,7 +96,7 @@ public class NewVisitor extends delphiBaseVisitor<String> {
             String varName = ctx.identifierList().identifier(i).getText();
 //            print("Visited VariableDeclaration, varname: " + varName);
             varTracker.put(varName, Integer.MIN_VALUE); //Default initialization
-            writeToFile("%" + varName + " = alloca i32, align 4\n");
+            writeToFile("%" + varName + "_" + scopeStack.size() + " = alloca i32, align 4\n");
         }
         //Note, if a non-variable integer is initialized using visitVariableDeclaration, that will have to be implemented here, for now it only works with ints.
         return ctx.identifierList().identifier(0).getText();
@@ -452,16 +449,16 @@ public class NewVisitor extends delphiBaseVisitor<String> {
             }
             if (ctx.expression().getText().matches("-?\\d+")) {
                 varTracker.put(ctx.variable().getText(), Integer.parseInt(ctx.expression().getText()));
-                writeToFile("store i32 " + ctx.expression().getText() + ", ptr %" + ctx.variable().getText() + ", align 4\n");
+                writeToFile("store i32 " + ctx.expression().getText() + ", ptr %" + ctx.variable().getText() + "_" + scopeStack.size() +  ", align 4\n");
             } else if (ctx.expression().getText().contains("+") || ctx.expression().getText().contains("-")) {
                 int varVal = Integer.parseInt(this.visitExpression(ctx.expression()));
                 varTracker.put(identifier, varVal);
-                writeToFile("store i32 " + this.visitExpression(ctx.expression()) + ", ptr %" + ctx.variable().getText() + ", align 4\n");
+                writeToFile("store i32 " + this.visitExpression(ctx.expression()) + ", ptr %" + ctx.variable().getText() + "_" + scopeStack.size() +  ", align 4\n");
             } else if (ctx.expression().getText().contains("(") || ctx.expression().getText().contains(")")) {
                 varTracker.put(identifier, Integer.parseInt(this.visitExpression(ctx.expression())));
             } else if (varTracker.containsKey(ctx.expression().getText())) {
                 varTracker.put(identifier, varTracker.get(ctx.expression().getText()));
-                writeToFile("store i32 " + varTracker.get(ctx.expression().getText()) + ", ptr %" + ctx.variable().getText() + ", align 4\n");
+                writeToFile("store i32 " + varTracker.get(ctx.expression().getText()) + ", ptr %" + ctx.variable().getText() + "_" + scopeStack.size() +  ", align 4\n");
 
             }
 
@@ -526,6 +523,7 @@ public class NewVisitor extends delphiBaseVisitor<String> {
         this.scopeStack.add(this.varTracker);
         this.varTracker = new HashMap<>();
         this.varTracker.put(funcName, Integer.MIN_VALUE);
+        writeToFile("%" + funcName + "_" + scopeStack.size() + " = alloca i32, align 4\n");
 
         int i = 0;
         for (delphiParser.FormalParameterSectionContext paramSec: paramList.formalParameterSection()) {
