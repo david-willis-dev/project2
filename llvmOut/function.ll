@@ -14,4 +14,4 @@ store i32 5, ptr %addInts_1, align 4
   ret i32 1 
 }
  declare i32 @printf(ptr noundef, ...) #1
-attributes #1 = { "frame-pointer"="all" "no-trapping-math"="true" "stack-protector-buffer-size"="8" "target-cpu"="x86-64" "target-features"="+cmov,+cx8,+fxsr,+mmx,+sse,+sse2,+x87" "tune-cpu"="generic" }
+attributes #1 = { "frame-pointer"="all" "no-trapping-math"="true" "stack-protector-buffer-size"="8" "tune-cpu"="generic" }
