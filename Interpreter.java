@@ -5,13 +5,13 @@ import java.util.*;
 public class Interpreter {
     public static void main(String[] args) throws IOException {
         // working
-        runTest("./test_files/helloworldtest.pas", "HelloWorld.ll");
-        runTest("./test_files/forLoop.pas", "ForLoop.ll");
-        runTest("./test_files/whileLoop.pas", "./test_files/whileLoop.in", "./test_files/whileLoop.out", "While.ll");
-        runTest("./test_files/hardForLoop.pas", "continue.ll");
-        runTest("./test_files/readAndEcho.pas", "./test_files/readAndEcho.in", "./test_files/readAndEcho.out", "echo.ll");
-        runTest("./test_files/functionTest.pas", "function.ll");
-        manualTest("./test_files/procedureTest.pas", "procedure.ll");
+        runTest("./test_files/helloworldtest.pas", "llvmOut/HelloWorld.ll");
+        runTest("./test_files/forLoop.pas", "llvmOut/ForLoop.ll");
+        runTest("./test_files/whileLoop.pas", "./test_files/whileLoop.in", "./test_files/whileLoop.out", "llvmOut/While.ll");
+        runTest("./test_files/hardForLoop.pas", "llvmOut/continue.ll");
+        runTest("./test_files/readAndEcho.pas", "./test_files/readAndEcho.in", "./test_files/readAndEcho.out", "llvmOut/echo.ll");
+        runTest("./test_files/functionTest.pas", "llvmOut/function.ll");
+        manualTest("./test_files/procedureTest.pas", "llvmOut/procedure.ll");
 
         // not working
 //        runTest("./test_files/classTest.pas", "./test_files/classTest.in", "./test_files/classTest.out");
@@ -55,7 +55,7 @@ public class Interpreter {
         PrintStream ps = new PrintStream(baos);
         PrintStream oldOut = System.out;
         System.setOut(ps);
-
+        visitor.setLLVMFile(LLVMFile);
         visitor.visit(parser.program());
 
         System.out.flush();
@@ -101,12 +101,12 @@ public class Interpreter {
         file.write("define dso_local noundef i32 @main() #1 {\n");
         file.close();
 
-        System.out.println("--------Running test file: " + filePath + "--------");
         CharStream in = CharStreams.fromFileName(filePath);
         delphiLexer lexer = new delphiLexer(in);
         CommonTokenStream tokens = new CommonTokenStream(lexer);
         delphiParser parser = new delphiParser(tokens);
         NewVisitor visitor = new NewVisitor();
+        visitor.setLLVMFile(outputLLVM);
         visitor.visit(parser.program());
 
         file = new FileWriter(outputLLVM, true);
