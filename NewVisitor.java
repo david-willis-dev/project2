@@ -1,7 +1,8 @@
 import java.beans.Expression;
-import java.io.IOException;
+import java.io.*;
+
 import static java.io.IO.*;
-import java.io.FileWriter;
+
 import java.util.*;
 
 public class NewVisitor extends delphiBaseVisitor<String> {
@@ -22,16 +23,35 @@ public class NewVisitor extends delphiBaseVisitor<String> {
     private String currentClass = "";
     private boolean isPublic = true;
     private FileWriter file;
+    private int prtCount = 1;
 
     private void writeToFile(String writeString) {
         try {
-            file = new FileWriter("llvmInput.bc");
+            file = new FileWriter("output.ll", true);
             file.write(writeString);
             file.close();
         } catch (IOException e) {
             System.out.println("COULDN'T OPEN FILE");
-            e.printStackTrace();
         }
+    }
+
+    private void prependFile(String writeString) {
+
+        try {
+            FileInputStream file = new FileInputStream("output.ll");
+            byte[] contents = file.readAllBytes();
+            file.close();
+
+            try (FileOutputStream fos = new FileOutputStream("output.ll")) {
+                fos.write(writeString.getBytes());
+                fos.write(contents);
+            }
+
+            prtCount++;
+        } catch (IOException e) {
+            System.out.println("COULDN'T OPEN FILE");
+        }
+
     }
 
 
@@ -79,14 +99,13 @@ public class NewVisitor extends delphiBaseVisitor<String> {
         String varName = ctx.identifierList().identifier(0).getText();
         //Note, if a non-variable integer is initialized using visitVariableDeclaration, that will have to be implemented here, for now it only works with ints.
         varTracker.put(varName, Integer.MIN_VALUE); //Default initialization
-        writeToFile("@" + varName + " = global i32 0 ; global var\n");
+        writeToFile("%" + varName + " = alloca i32, align 4\n");
         return varName;
     }
 
 
     @Override
     public String visitClassDefinitionPart(delphiParser.ClassDefinitionPartContext ctx) {
-        //println("Visited ClassDefinitionPart:\n" + ctx.getText() + "\n");
         String str = "";
         if (ctx.privateOrPublic(0) != null) {
              isPublic = ctx.privateOrPublic(0).getText().equals("public");
@@ -227,11 +246,20 @@ public class NewVisitor extends delphiBaseVisitor<String> {
 //            } else {
 //                writeStr = parameter;
 //            }
+
+
+            int strLen = writeStr.length() + 1;
             if (command.contains("ln")) {
                 println(writeStr);
+                writeStr += "\\0A";
+                strLen += 1;
             } else {
                 print(writeStr);
             }
+
+            prependFile("@.str" + prtCount + " = private unnamed_addr constant [" + strLen + " x i8] c\"" + writeStr + "\\00\", align 1\n");
+            writeToFile("%" + prtCount + " = call i32 (ptr, ...) @printf(ptr noundef @.str" + (prtCount - 1) + ")\n");
+
         }
         if (command.equalsIgnoreCase("readln") || command.equalsIgnoreCase("read")) {
             Scanner scanner = new Scanner(System.in);
@@ -370,14 +398,15 @@ public class NewVisitor extends delphiBaseVisitor<String> {
 
     @Override
     public String visitForStatement(delphiParser.ForStatementContext ctx) {
-        String varname = ctx.identifier().getText();
+        String varName = ctx.identifier().getText();
         String forList = ctx.forList().getText();
         int startVal = Integer.parseInt(forList.substring(0, forList.indexOf("to")));
         int endVal = Integer.parseInt(forList.substring(forList.indexOf("to") + 2, forList.length()));
 //        println("FOR SATEMENT: " + ctx.DO().getText());
 
         for (int i = startVal; i <= endVal; i++) {
-            varTracker.put(varname, i);
+            varTracker.put(varName, i);
+            writeToFile("store i32 " + i + ", ptr %" + varName + ", align 4\n");
             this.visitStatement(ctx.statement());
             if (breakLoop) {
                 breakLoop = false;
@@ -390,17 +419,18 @@ public class NewVisitor extends delphiBaseVisitor<String> {
 
     @Override
     public String visitWhileStatement(delphiParser.WhileStatementContext ctx) {
-        String varname = ctx.expression().simpleExpression().getText();
+        String varName = ctx.expression().simpleExpression().getText();
         String endValue = ctx.expression().expression().simpleExpression().getText();
-        String curVal = String.valueOf(varTracker.get(varname));
+        String curVal = String.valueOf(varTracker.get(varName));
 
         while (!Objects.equals(curVal, endValue)) {
+            writeToFile("store i32 " + curVal + ", ptr %" + varName + ", align 4\n");
             this.visitStatement(ctx.statement());
             if (breakLoop) {
                 breakLoop = false;
                 break;
             }
-            curVal = String.valueOf(varTracker.get(varname));
+            curVal = String.valueOf(varTracker.get(varName));
         }
 
         return "";
@@ -420,13 +450,16 @@ public class NewVisitor extends delphiBaseVisitor<String> {
             }
             if (ctx.expression().getText().matches("-?\\d+")) {
                 varTracker.put(ctx.variable().getText(), Integer.parseInt(ctx.expression().getText()));
+                writeToFile("store i32 " + ctx.expression().getText() + ", ptr %" + ctx.variable().getText() + ", align 4\n");
             } else if (ctx.expression().getText().contains("+") || ctx.expression().getText().contains("-")) {
                 int varVal = Integer.parseInt(this.visitExpression(ctx.expression()));
                 varTracker.put(identifier, varVal);
+                writeToFile("store i32 " + this.visitExpression(ctx.expression()) + ", ptr %" + ctx.variable().getText() + ", align 4\n");
             } else if (ctx.expression().getText().contains("(") || ctx.expression().getText().contains(")")) {
                 varTracker.put(identifier, Integer.parseInt(this.visitExpression(ctx.expression())));
             } else if (varTracker.containsKey(ctx.expression().getText())) {
                 varTracker.put(identifier, varTracker.get(ctx.expression().getText()));
+                writeToFile("store i32 " + varTracker.get(ctx.expression().getText()) + ", ptr %" + ctx.variable().getText() + ", align 4\n");
 
             }
 
@@ -483,7 +516,7 @@ public class NewVisitor extends delphiBaseVisitor<String> {
         List<Integer> arguments = new ArrayList<>();
         List<delphiParser.ActualParameterContext> actualParams = ctx.actualParameter();
 
-        for (delphiParser.ActualParameterContext actualParameterContext : ctx.actualParameter()) {
+        for (delphiParser.ActualParameterContext actualParameterContext : actualParams) {
             int varVal = getVarOrVal(actualParameterContext.expression().simpleExpression().term());
             arguments.add(varVal);
         }
@@ -524,6 +557,10 @@ public class NewVisitor extends delphiBaseVisitor<String> {
         } else {
             val = firstVal - secondVal;
         }
+
+        // Hack way of doing it but write the evaluated val to a temp var, then overwrite og variable val
+        writeToFile("@TEMP = global i32 "  + val + " ; global var\n");
+
 
         return String.valueOf(val);
     }
