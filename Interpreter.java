@@ -13,9 +13,37 @@ public class Interpreter {
         runTest("./test_files/functionTest.pas", "llvmOut/function.ll");
         manualTest("./test_files/procedureTest.pas", "llvmOut/procedure.ll");
 
+
+        checkFiles("./llvmOut/HelloWorld.ll", "./llvmOut/HelloWorld.out");
+        checkFiles("./llvmOut/ForLoop.ll", "./llvmOut/ForLoop.out");
+        checkFiles("./llvmOut/While.ll", "./llvmOut/While.out");
+        checkFiles("./llvmOut/continue.ll", "./llvmOut/continue.out");
+        checkFiles("./llvmOut/echo.ll", "./llvmOut/echo.out");
+        checkFiles("./llvmOut/procedure.ll", "./llvmOut/procedure.out");
         // not working
 //        runTest("./test_files/classTest.pas", "./test_files/classTest.in", "./test_files/classTest.out");
 //        runTest("./test_files/encapsulationTest.pas");
+    }
+
+    public static void checkFiles(String generatedPath, String expectedPath) throws FileNotFoundException {
+        //Get generated output
+        File outputFile = new File(generatedPath);
+        Scanner outputScanner = new Scanner(outputFile);
+        String expectedOutput = outputScanner.useDelimiter("\\Z").next();
+        outputScanner.close();
+
+        //Get expected output
+        File expectedOutputFile = new File(expectedPath);
+        Scanner expectedOutputScanner = new Scanner(expectedOutputFile);
+        String generatedOutput = expectedOutputScanner.useDelimiter("\\Z").next();
+        expectedOutputScanner.close();
+
+        //Compare
+        if (expectedOutput.equals(generatedOutput)) {
+            System.out.println("Test for " + generatedPath + " passed!");
+        } else {
+            System.out.println("Test for " + generatedPath + " failed!");
+        }
     }
 
     public static void runTest(String filePath, String inputPath, String outputPath, String LLVMFile) throws IOException {
