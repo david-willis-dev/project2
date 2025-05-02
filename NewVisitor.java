@@ -45,9 +45,9 @@ public class NewVisitor extends delphiBaseVisitor<String> {
             try (FileOutputStream fos = new FileOutputStream("output.ll")) {
                 fos.write(writeString.getBytes());
                 fos.write(contents);
+                prtCount++;
             }
 
-            prtCount++;
         } catch (IOException e) {
             System.out.println("COULDN'T OPEN FILE");
         }
@@ -95,12 +95,14 @@ public class NewVisitor extends delphiBaseVisitor<String> {
 
     @Override
     public String visitVariableDeclaration(delphiParser.VariableDeclarationContext ctx) {
-//        print("Visited VariableDeclaration: ");
-        String varName = ctx.identifierList().identifier(0).getText();
+        for (int i = 0; i < ctx.identifierList().identifier().size(); i++) {
+            String varName = ctx.identifierList().identifier(i).getText();
+//            print("Visited VariableDeclaration, varname: " + varName);
+            varTracker.put(varName, Integer.MIN_VALUE); //Default initialization
+            writeToFile("%" + varName + " = alloca i32, align 4\n");
+        }
         //Note, if a non-variable integer is initialized using visitVariableDeclaration, that will have to be implemented here, for now it only works with ints.
-        varTracker.put(varName, Integer.MIN_VALUE); //Default initialization
-        writeToFile("%" + varName + " = alloca i32, align 4\n");
-        return varName;
+        return ctx.identifierList().identifier(0).getText();
     }
 
 
@@ -559,9 +561,6 @@ public class NewVisitor extends delphiBaseVisitor<String> {
         }
 
         // Hack way of doing it but write the evaluated val to a temp var, then overwrite og variable val
-        writeToFile("@TEMP = global i32 "  + val + " ; global var\n");
-
-
         return String.valueOf(val);
     }
 
