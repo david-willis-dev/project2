@@ -21,10 +21,15 @@ public class NewVisitor extends delphiBaseVisitor<String> {
     private boolean isPublic = true;
     private FileWriter file;
     private int prtCount = 1;
+    private String llvmFile = "output.ll";
+
+    public void setLLVMFile(String filename) {
+        llvmFile = filename;
+    }
 
     private void writeToFile(String writeString) {
         try {
-            file = new FileWriter("output.ll", true);
+            file = new FileWriter(llvmFile, true);
             file.write(writeString);
             file.close();
         } catch (IOException e) {
@@ -35,11 +40,11 @@ public class NewVisitor extends delphiBaseVisitor<String> {
     private void prependFile(String writeString) {
 
         try {
-            FileInputStream file = new FileInputStream("output.ll");
+            FileInputStream file = new FileInputStream(llvmFile);
             byte[] contents = file.readAllBytes();
             file.close();
 
-            try (FileOutputStream fos = new FileOutputStream("output.ll")) {
+            try (FileOutputStream fos = new FileOutputStream(llvmFile)) {
                 fos.write(writeString.getBytes());
                 fos.write(contents);
                 prtCount++;
