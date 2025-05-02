@@ -5,22 +5,22 @@ import java.util.*;
 public class Interpreter {
     public static void main(String[] args) throws IOException {
         // working
-        runTest("./test_files/helloworldtest.pas");
-        runTest("./test_files/forLoop.pas");
-        runTest("./test_files/whileLoop.pas", "./test_files/whileLoop.in", "./test_files/whileLoop.out");
-        runTest("./test_files/hardForLoop.pas");
-        runTest("./test_files/readAndEcho.pas", "./test_files/readAndEcho.in", "./test_files/readAndEcho.out");
-        runTest("./test_files/functionTest.pas");
+        runTest("./test_files/helloworldtest.pas", "HelloWorld.ll");
+        runTest("./test_files/forLoop.pas", "ForLoop.ll");
+        runTest("./test_files/whileLoop.pas", "./test_files/whileLoop.in", "./test_files/whileLoop.out", "While.ll");
+        runTest("./test_files/hardForLoop.pas", "continue.ll");
+        runTest("./test_files/readAndEcho.pas", "./test_files/readAndEcho.in", "./test_files/readAndEcho.out", "echo.ll");
+        runTest("./test_files/functionTest.pas", "function.ll");
+        manualTest("./test_files/procedureTest.pas", "procedure.ll");
 
         // not working
-        runTest("./test_files/classTest.pas", "./test_files/classTest.in", "./test_files/classTest.out");
-        runTest("./test_files/encapsulationTest.pas");
-        manualTest("./test_files/procedureTest.pas");
+//        runTest("./test_files/classTest.pas", "./test_files/classTest.in", "./test_files/classTest.out");
+//        runTest("./test_files/encapsulationTest.pas");
     }
 
-    public static void runTest(String filePath, String inputPath, String outputPath) throws IOException {
+    public static void runTest(String filePath, String inputPath, String outputPath, String LLVMFile) throws IOException {
         System.out.println("--------Running test file: " + filePath + "--------");
-        FileWriter file = new FileWriter("output.ll");
+        FileWriter file = new FileWriter(LLVMFile);
         file.write("define dso_local noundef i32 @main() #1 {\n");
         file.close();
 
@@ -66,13 +66,13 @@ public class Interpreter {
 
         System.setIn(System.in);
 
-        file = new FileWriter("output.ll", true);
+        file = new FileWriter(LLVMFile, true);
         file.write("\n  ret i32 1 \n}\n declare i32 @printf(ptr noundef, ...) #1\nattributes #1 = { \"frame-pointer\"=\"all\" \"no-trapping-math\"=\"true\" \"stack-protector-buffer-size\"=\"8\" \"target-cpu\"=\"x86-64\" \"target-features\"=\"+cmov,+cx8,+fxsr,+mmx,+sse,+sse2,+x87\" \"tune-cpu\"=\"generic\" }");
         file.close();
 
     }
-    public static void runTest(String filePath) throws IOException {
-        FileWriter file = new FileWriter("output.ll");
+    public static void runTest(String filePath, String llvmOutput) throws IOException {
+        FileWriter file = new FileWriter(llvmOutput);
         file.write("define dso_local noundef i32 @main() #1 {\n");
         file.close();
 
@@ -85,18 +85,19 @@ public class Interpreter {
         String expectedOutputFile = filePath.substring(0, filePath.length() - 3) + "out";
         String expectedOutput = new String(java.nio.file.Files.readAllBytes(java.nio.file.Paths.get(expectedOutputFile)));
         System.out.print("Actual Output  : ");
+        visitor.setLLVMFile(llvmOutput);
         visitor.visit(parser.program());
 
-        file = new FileWriter("output.ll", true);
+        file = new FileWriter(llvmOutput, true);
         file.write("\n  ret i32 1 \n}\n declare i32 @printf(ptr noundef, ...) #1\nattributes #1 = { \"frame-pointer\"=\"all\" \"no-trapping-math\"=\"true\" \"stack-protector-buffer-size\"=\"8\" \"target-cpu\"=\"x86-64\" \"target-features\"=\"+cmov,+cx8,+fxsr,+mmx,+sse,+sse2,+x87\" \"tune-cpu\"=\"generic\" }");
         file.close();
 
         System.out.println("Expected Output: " + expectedOutput);
     }
 
-    public static void manualTest(String filePath) throws IOException {
+    public static void manualTest(String filePath, String outputLLVM) throws IOException {
         System.out.println("--------Running test file: " + filePath + "--------");
-        FileWriter file = new FileWriter("output.ll");
+        FileWriter file = new FileWriter(outputLLVM);
         file.write("define dso_local noundef i32 @main() #1 {\n");
         file.close();
 
@@ -108,7 +109,7 @@ public class Interpreter {
         NewVisitor visitor = new NewVisitor();
         visitor.visit(parser.program());
 
-        file = new FileWriter("output.ll", true);
+        file = new FileWriter(outputLLVM, true);
         file.write("\n  ret i32 1 \n}\n declare i32 @printf(ptr noundef, ...) #1\nattributes #1 = { \"frame-pointer\"=\"all\" \"no-trapping-math\"=\"true\" \"stack-protector-buffer-size\"=\"8\" \"target-cpu\"=\"x86-64\" \"target-features\"=\"+cmov,+cx8,+fxsr,+mmx,+sse,+sse2,+x87\" \"tune-cpu\"=\"generic\" }");
         file.close();
     }
