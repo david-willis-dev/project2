@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
   <component name="ChangeListManager">
-    <list default="true" id="cb2383d0-a127-4c3f-a20c-af35bc7c5419" name="Changes" comment="ignore">
-      <change beforePath="$PROJECT_DIR$/.idea/libraries/antlr_4_13_2_complete.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/project2.iml" beforeDir="false" afterPath="$PROJECT_DIR$/project2.iml" afterDir="false" />
+    <list default="true" id="cb2383d0-a127-4c3f-a20c-af35bc7c5419" name="Changes" comment="More Refactoring">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -14,21 +16,21 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
-  "lastFilter": {
-    "state": "OPEN",
-    "assignee": "Aelly-A"
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;Aelly-A&quot;
   }
-}]]></component>
-  <component name="GithubPullRequestsUISettings"><![CDATA[{
-  "selectedUrlAndAccountId": {
-    "url": "https://github.com/david-willis-dev/project2",
-    "accountId": "372c298d-84c6-4343-8c38-6af6df990512"
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/david-willis-dev/project2&quot;,
+    &quot;accountId&quot;: &quot;372c298d-84c6-4343-8c38-6af6df990512&quot;
   }
-}]]></component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 3
-}]]></component>
+}</component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 3
+}</component>
   <component name="ProjectId" id="2vQgUw2AfNMF0HhZoL9yFUrbRt4" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -70,7 +72,8 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1744082730660</updated>
-      <workItem from="1744082731696" duration="321000" />
+      <workItem from="1744082731696" duration="2142000" />
+      <workItem from="1746069157893" duration="22570000" />
     </task>
     <task id="LOCAL-00001" summary="ignore">
       <option name="closed" value="true" />
@@ -88,7 +91,111 @@
       <option name="project" value="LOCAL" />
       <updated>1744082861850</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="fix proc">
+      <option name="closed" value="true" />
+      <created>1744083095476</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1744083095476</updated>
+    </task>
+    <task id="LOCAL-00004" summary="update readme">
+      <option name="closed" value="true" />
+      <created>1744083118429</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1744083118429</updated>
+    </task>
+    <task id="LOCAL-00005" summary="update readme">
+      <option name="closed" value="true" />
+      <created>1744083181082</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1744083181082</updated>
+    </task>
+    <task id="LOCAL-00006" summary="uncomment tests">
+      <option name="closed" value="true" />
+      <created>1744083502612</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1744083502612</updated>
+    </task>
+    <task id="LOCAL-00007" summary="basis for P3">
+      <option name="closed" value="true" />
+      <created>1746143938724</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1746143938724</updated>
+    </task>
+    <task id="LOCAL-00008" summary="Update gitignore">
+      <option name="closed" value="true" />
+      <created>1746143989977</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1746143989977</updated>
+    </task>
+    <task id="LOCAL-00009" summary="Working for loops and printing">
+      <option name="closed" value="true" />
+      <created>1746205092032</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1746205092032</updated>
+    </task>
+    <task id="LOCAL-00010" summary="working while loops">
+      <option name="closed" value="true" />
+      <created>1746205798874</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1746205798874</updated>
+    </task>
+    <task id="LOCAL-00011" summary="Working funcs and procs">
+      <option name="closed" value="true" />
+      <created>1746206464870</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1746206464870</updated>
+    </task>
+    <task id="LOCAL-00012" summary="add dynamic llvm output">
+      <option name="closed" value="true" />
+      <created>1746206558105</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1746206558106</updated>
+    </task>
+    <task id="LOCAL-00013" summary="add dynamic llvm output to Interreter">
+      <option name="closed" value="true" />
+      <created>1746206711282</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1746206711282</updated>
+    </task>
+    <task id="LOCAL-00014" summary="Do some refactoring">
+      <option name="closed" value="true" />
+      <created>1746206991539</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1746206991539</updated>
+    </task>
+    <task id="LOCAL-00015" summary="More Refactoring">
+      <option name="closed" value="true" />
+      <created>1746207109171</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1746207109171</updated>
+    </task>
+    <option name="localTasksCounter" value="16" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -96,6 +203,34 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="ignore" />
-    <option name="LAST_COMMIT_MESSAGE" value="ignore" />
+    <MESSAGE value="fix proc" />
+    <MESSAGE value="update readme" />
+    <MESSAGE value="uncomment tests" />
+    <MESSAGE value="basis for P3" />
+    <MESSAGE value="Update gitignore" />
+    <MESSAGE value="Working for loops and printing" />
+    <MESSAGE value="working while loops" />
+    <MESSAGE value="Working funcs and procs" />
+    <MESSAGE value="add dynamic llvm output" />
+    <MESSAGE value="add dynamic llvm output to Interreter" />
+    <MESSAGE value="Do some refactoring" />
+    <MESSAGE value="More Refactoring" />
+    <option name="LAST_COMMIT_MESSAGE" value="More Refactoring" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/NewVisitor.java</url>
+          <line>425</line>
+          <option name="timeStamp" value="3" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="java-line">
+          <url>file://$PROJECT_DIR$/NewVisitor.java</url>
+          <line>462</line>
+          <option name="timeStamp" value="5" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>

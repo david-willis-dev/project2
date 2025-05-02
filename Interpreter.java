@@ -67,7 +67,7 @@ public class Interpreter {
         System.setIn(System.in);
 
         file = new FileWriter(LLVMFile, true);
-        file.write("\n  ret i32 1 \n}\n declare i32 @printf(ptr noundef, ...) #1\nattributes #1 = { \"frame-pointer\"=\"all\" \"no-trapping-math\"=\"true\" \"stack-protector-buffer-size\"=\"8\" \"target-cpu\"=\"x86-64\" \"target-features\"=\"+cmov,+cx8,+fxsr,+mmx,+sse,+sse2,+x87\" \"tune-cpu\"=\"generic\" }");
+        file.write("\n  ret i32 1 \n}\n declare i32 @printf(ptr noundef, ...) #1\nattributes #1 = { \"frame-pointer\"=\"all\" \"no-trapping-math\"=\"true\" \"stack-protector-buffer-size\"=\"8\" \"tune-cpu\"=\"generic\" }");
         file.close();
 
     }
@@ -89,7 +89,7 @@ public class Interpreter {
         visitor.visit(parser.program());
 
         file = new FileWriter(llvmOutput, true);
-        file.write("\n  ret i32 1 \n}\n declare i32 @printf(ptr noundef, ...) #1\nattributes #1 = { \"frame-pointer\"=\"all\" \"no-trapping-math\"=\"true\" \"stack-protector-buffer-size\"=\"8\" \"target-cpu\"=\"x86-64\" \"target-features\"=\"+cmov,+cx8,+fxsr,+mmx,+sse,+sse2,+x87\" \"tune-cpu\"=\"generic\" }");
+        file.write("\n  ret i32 1 \n}\n declare i32 @printf(ptr noundef, ...) #1\nattributes #1 = { \"frame-pointer\"=\"all\" \"no-trapping-math\"=\"true\" \"stack-protector-buffer-size\"=\"8\" \"tune-cpu\"=\"generic\" }");
         file.close();
 
         System.out.println("Expected Output: " + expectedOutput);
@@ -110,7 +110,7 @@ public class Interpreter {
         visitor.visit(parser.program());
 
         file = new FileWriter(outputLLVM, true);
-        file.write("\n  ret i32 1 \n}\n declare i32 @printf(ptr noundef, ...) #1\nattributes #1 = { \"frame-pointer\"=\"all\" \"no-trapping-math\"=\"true\" \"stack-protector-buffer-size\"=\"8\" \"target-cpu\"=\"x86-64\" \"target-features\"=\"+cmov,+cx8,+fxsr,+mmx,+sse,+sse2,+x87\" \"tune-cpu\"=\"generic\" }");
+        file.write("\n  ret i32 1 \n}\n declare i32 @printf(ptr noundef, ...) #1\nattributes #1 = { \"frame-pointer\"=\"all\" \"no-trapping-math\"=\"true\" \"stack-protector-buffer-size\"=\"8\"  \"tune-cpu\"=\"generic\" }");
         file.close();
     }
 }

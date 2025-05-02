@@ -410,7 +410,7 @@ public class NewVisitor extends delphiBaseVisitor<String> {
 
         for (int i = startVal; i <= endVal; i++) {
             varTracker.put(varName, i);
-            writeToFile("store i32 " + i + ", ptr %" + varName + ", align 4\n");
+            writeToFile("store i32 " + i + ", ptr %" + varName + "_" + scopeStack.size() + ", align 4\n");
             this.visitStatement(ctx.statement());
             if (breakLoop) {
                 breakLoop = false;
@@ -428,7 +428,7 @@ public class NewVisitor extends delphiBaseVisitor<String> {
         String curVal = String.valueOf(varTracker.get(varName));
 
         while (!Objects.equals(curVal, endValue)) {
-            writeToFile("store i32 " + curVal + ", ptr %" + varName + ", align 4\n");
+            writeToFile("store i32 " + curVal + ", ptr %" + varName + "_" + scopeStack.size() + ", align 4\n");
             this.visitStatement(ctx.statement());
             if (breakLoop) {
                 breakLoop = false;
